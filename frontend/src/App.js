@@ -1,24 +1,35 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import AuthProvider, { AuthContext } from './context/AuthContext';
+import { useContext } from 'react';
 
-// pages & components
-import Home from './pages/Home'
-import Navbar from './components/Navbar'
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  const { user } = useContext(AuthContext);
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        user ? <Component {...props} /> : <Redirect to="/login" />
+      }
+    />
+  );
+};
 
 function App() {
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Navbar />
-        <div className="pages">
-          <Routes>
-            <Route 
-              path="/"
-              element={<Home />}
-            />
-          </Routes>
+    <AuthProvider>
+      <Router>
+        <div className="App">
+          <Switch>
+            <Route path="/signup" component={Signup} />
+            <Route path="/login" component={Login} />
+            <PrivateRoute path="/" component={HomePage} />
+            {/* other routes */}
+          </Switch>
         </div>
-      </BrowserRouter>
-    </div>
+      </Router>
+    </AuthProvider>
   );
 }
 
